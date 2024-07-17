@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -20,6 +21,7 @@ import com.abutua.productbackend.services.ProductService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("products")
 public class ProductController {
 
   // injetando dependencias
@@ -27,7 +29,7 @@ public class ProductController {
   private ProductService productService;
 
   // salvar um produto
-  @PostMapping("products")
+  @PostMapping
   public ResponseEntity<Product> save(@RequestBody Product product){
 
     product = productService.save(product);
@@ -43,27 +45,27 @@ public class ProductController {
   }
 
   // buscar um produto
-  @GetMapping("products/{id}")
+  @GetMapping("{id}")
   public ResponseEntity<Product> getProduct(@PathVariable int id) {  
     Product product = productService.getById(id);
     return ResponseEntity.ok(product);
   }
 
   // buscar todos os produtos
-  @GetMapping("products")
-  public List<Product> getProducts() {
-    return productService.getAll();
+  @GetMapping
+  public ResponseEntity<List<Product>> getProducts() {
+    return ResponseEntity.ok(productService.getAll());
   }
   
   // remover um produto
-  @DeleteMapping("products/{id}")
+  @DeleteMapping("{id}")
   public ResponseEntity<Product> deleteProduct(@PathVariable int id) {  
     productService.deleteById(id);
     return ResponseEntity.noContent().build();
   }
 
   // atualizar um produto
-  @PutMapping("products/{id}")
+  @PutMapping("{id}")
   public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product productUpdate) {
     productService.update(id, productUpdate);
     return ResponseEntity.ok().build();

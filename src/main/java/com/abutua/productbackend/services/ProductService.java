@@ -23,7 +23,6 @@ public class ProductService {
   public Product getById(int id) {
     Product product = productRepository.findById(id)
       .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
-
     return product;
   }
 
@@ -46,7 +45,6 @@ public class ProductService {
     if(productUpdate.getCategory() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category can not be empty");
     }
-  
     Category category = categoryService.getById(productUpdate.getCategory().getId());
 
     product.setName(productUpdate.getName());
@@ -58,5 +56,4 @@ public class ProductService {
 
     productRepository.save(product);
   }
-  
 }
