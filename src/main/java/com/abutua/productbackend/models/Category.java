@@ -1,5 +1,7 @@
 package com.abutua.productbackend.models;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,16 +10,17 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name="TBL_CATEGORY")
-public class Category {
+public class Category implements Serializable {
 
   //atributos
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int id;
+  private Integer id;
+  
   private String name;
 
   //metodos construtores
-  public Category(int id, String name){
+  public Category(Integer id, String name){
     this.id = id;
     this.name = name;
   }
@@ -27,10 +30,10 @@ public class Category {
   }
   
   //metodos
-  public int getId() {
+  public Integer getId() {
     return id;
   }
-  public void setId(int id) {
+  public void setId(Integer id) {
     this.id = id;
   }
   public String getName() {
@@ -40,7 +43,34 @@ public class Category {
     this.name = name;
   }
 
-  
-  
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Category other = (Category) obj;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return "Category [id=" + id + ", name=" + name + "]";
+  }
   
 }
