@@ -2,6 +2,7 @@ package com.abutua.productbackend.models;
 
 import java.io.Serializable;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,8 +19,13 @@ public class Product implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(nullable = false)
   private String name;
+
+  @Column(nullable = false, length = 1024)
   private String description;
+
+  @Column(nullable = false)
   private Double price;
 
   @ManyToOne
@@ -30,6 +36,8 @@ public class Product implements Serializable {
   
 
   // metodos construtores
+  public Product() {} // metodo vazio é semrpe necessário  
+
   public Product(Long id, String name, String description, Double price, Category category, boolean promotion, boolean newProduct){
     this.id = id;
     this.name = name;
@@ -44,9 +52,6 @@ public class Product implements Serializable {
     this.id = id;
     this.name = name;
     this.price = price;
-  }
-
-  public Product(){ //metodo vazio pode ser útil..
   }
 
   // metodos
