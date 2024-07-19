@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.abutua.productbackend.models.Category;
+import com.abutua.productbackend.dto.CategoryRequest;
+import com.abutua.productbackend.dto.CategoryResponse;
 import com.abutua.productbackend.services.CategoryService;
 
 
@@ -32,23 +33,23 @@ public class CategoryController {
 
   // criar endpoint de categoria buscada
   @GetMapping("{id}")
-  public ResponseEntity<Category> getCategory(@PathVariable int id){
-    Category category = categoryService.getById(id);
+  public ResponseEntity<CategoryResponse> getCategory(@PathVariable int id){
+    CategoryResponse category = categoryService.getDTOById(id);
     return ResponseEntity.ok(category);
   }
 
   // criar endpoint de categorias
   @GetMapping
-  public ResponseEntity<List<Category>> getCategories(){
+  public ResponseEntity<List<CategoryResponse>> getCategories(){
     return ResponseEntity.ok(categoryService.getAll());
   }
 
   
   // salvar uma categoria
   @PostMapping
-  public ResponseEntity<Category> save(@Validated @RequestBody Category category){
+  public ResponseEntity<CategoryResponse> save(@Validated @RequestBody CategoryRequest categoryRequest){
 
-    category = categoryService.save(category);
+    CategoryResponse category = categoryService.save(categoryRequest);
 
     // gerando o URI para o location - criando o produto
     URI location = ServletUriComponentsBuilder
@@ -62,14 +63,14 @@ public class CategoryController {
 
   // remover uma categoria
   @DeleteMapping("{id}")
-  public ResponseEntity<Category> deleteCategory(@PathVariable int id) {  
+  public ResponseEntity<Void> deleteCategory(@PathVariable int id) {  
     categoryService.deleteById(id);
     return ResponseEntity.noContent().build();
   }
 
   // atualizar uma categoria
   @PutMapping("{id}")
-  public ResponseEntity<Category> updateCategory(@PathVariable int id, @RequestBody Category categoryUpdate) {
+  public ResponseEntity<CategoryResponse> updateCategory(@PathVariable int id, @RequestBody CategoryResponse categoryUpdate) {
     categoryService.update(id, categoryUpdate);
     return ResponseEntity.ok().build();
   }
