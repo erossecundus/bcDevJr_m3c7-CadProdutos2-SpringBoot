@@ -17,8 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.abutua.productbackend.dto.ProductRequest;
+import com.abutua.productbackend.dto.ProductResponse;
 import com.abutua.productbackend.models.Product;
 import com.abutua.productbackend.services.ProductService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @CrossOrigin
@@ -31,30 +35,29 @@ public class ProductController {
 
   // salvar um produto
   @PostMapping
-  public ResponseEntity<Product> save(@Validated @RequestBody Product product){
-
-    product = productService.save(product);
+  public ResponseEntity<ProductResponse> save(@Validated @RequestBody ProductRequest productRequest){
+    ProductResponse productResponse = productService.save(productRequest);
 
     // gerando o URI para o location - criando o produto
     URI location = ServletUriComponentsBuilder
       .fromCurrentRequest()
       .path("/{id}")
-      .buildAndExpand(product.getId())
+      .buildAndExpand(productResponse.getId())
       .toUri();
 
-    return ResponseEntity.created(location).body(product);
+    return ResponseEntity.created(location).body(productResponse);
   }
 
   // buscar um produto
   @GetMapping("{id}")
-  public ResponseEntity<Product> getProduct(@PathVariable long id) {  
-    Product product = productService.getById(id);
+  public ResponseEntity<ProductResponse> getProduct(@PathVariable long id) {  
+    ProductResponse product = productService.getDTOById(id);
     return ResponseEntity.ok(product);
   }
 
   // buscar todos os produtos
   @GetMapping
-  public ResponseEntity<List<Product>> getProducts() {
+  public ResponseEntity<List<ProductResponse>> getProducts() {
     return ResponseEntity.ok(productService.getAll());
   }
   
@@ -67,7 +70,7 @@ public class ProductController {
 
   // atualizar um produto
   @PutMapping("{id}")
-  public ResponseEntity<Product> updateProduct(@PathVariable long id, @RequestBody Product productUpdate) {
+  public ResponseEntity<Void> updateProduct(@PathVariable long id, @Valid @RequestBody ProductRequest productUpdate) {
     productService.update(id, productUpdate);
     return ResponseEntity.ok().build();
   }

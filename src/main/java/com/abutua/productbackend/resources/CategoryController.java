@@ -70,7 +70,7 @@ public class CategoryController {
 
   // atualizar uma categoria
   @PutMapping("{id}")
-  public ResponseEntity<CategoryResponse> updateCategory(@PathVariable int id, @RequestBody CategoryResponse categoryUpdate) {
+  public ResponseEntity<CategoryRequest> updateCategory(@PathVariable int id, @RequestBody CategoryRequest categoryUpdate) {
     categoryService.update(id, categoryUpdate);
     return ResponseEntity.ok().build();
   }

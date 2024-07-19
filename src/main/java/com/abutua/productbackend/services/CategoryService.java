@@ -48,7 +48,7 @@ public class CategoryService {
     categoryRepository.delete(category);
   }
 
-  public void update(int id, CategoryResponse categoryUpdate) {
+  public void update(int id, CategoryRequest categoryUpdate) {
     Category category = getById(id);
     category.setName(categoryUpdate.getName());
     categoryRepository.save(category);
