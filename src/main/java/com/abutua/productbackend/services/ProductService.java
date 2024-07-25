@@ -4,9 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.abutua.productbackend.dto.ProductRequest;
 import com.abutua.productbackend.dto.ProductResponse;
@@ -14,20 +13,19 @@ import com.abutua.productbackend.models.Category;
 import com.abutua.productbackend.models.Product;
 import com.abutua.productbackend.repositories.ProductRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class ProductService {
 
   @Autowired
   private ProductRepository productRepository;
 
-  @Autowired
-  private CategoryService categoryService;
 
-
-  public Product getById(long id) {
+  public ProductResponse getById(long id) {
     Product product = productRepository.findById(id)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
-    return product;
+      .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+    return product.toDTO();
   }
 
   public List<ProductResponse> getAll() {
@@ -38,35 +36,52 @@ public class ProductService {
   }
 
   public ProductResponse save(ProductRequest productRequest) {
-    Product product = productRepository.save(productRequest.toEntity());
-    return product.toDTO();
+    try {
+      Product product = productRepository.save(productRequest.toEntity());
+      return product.toDTO();
+    } catch (DataIntegrityViolationException e) {
+      throw new EntityNotFoundException("Category not found");
+    }
   }
 
   public void deleteById(long id) {
-    Product product = getById(id);
-    productRepository.delete(product);
+    // try {
+      if(!productRepository.existsById(id)) {
+        throw new EntityNotFoundException("Product not found");
+      }
+      productRepository.deleteById(id);
+    // }
+    // catch (EmptyResultDataAccessException e) {
+    //   throw new EntityNotFoundException("Product not found");
+    // }
+
   }
 
   public void update(long id, ProductRequest productUpdate) {
-    Product product = getById(id);
+    try {
+      Product product = productRepository.getReferenceById(id);
 
-    if(productUpdate.getCategory() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category can not be empty");
+      Category category = new Category(productUpdate.getCategory().getId());
+
+      product.setName(productUpdate.getName());
+      product.setDescription(productUpdate.getDescription());
+      product.setPrice(productUpdate.getPrice());
+      product.setPromotion(productUpdate.isPromotion());
+      product.setNewProduct(productUpdate.isNewProduct());
+      product.setCategory(category);
+
+      productRepository.save(product);
     }
-    Category category = categoryService.getById(productUpdate.getCategory().getId());
-
-    product.setName(productUpdate.getName());
-    product.setDescription(productUpdate.getDescription());
-    product.setPrice(productUpdate.getPrice());
-    product.setPromotion(productUpdate.isPromotion());
-    product.setNewProduct(productUpdate.isNewProduct());
-    product.setCategory(category);
-
-    productRepository.save(product);
+    catch (EntityNotFoundException e) {
+      throw new EntityNotFoundException("Product not found");
+    }
+    catch (DataIntegrityViolationException e) {
+      throw new EntityNotFoundException("Category not found");
+    }
   }
 
-  public ProductResponse getDTOById(long id) {
+  /*public ProductResponse getDTOById(long id) {
     Product product = getById(id);
     return product.toDTO();
-  }
+  }*/
 }

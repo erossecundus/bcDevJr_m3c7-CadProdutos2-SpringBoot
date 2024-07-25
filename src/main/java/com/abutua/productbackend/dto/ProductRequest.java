@@ -25,7 +25,7 @@ public class ProductRequest {
   private boolean promotion;
   private boolean newProduct;
 
-  @NotNull
+  @NotNull(message = "Category can't be null")
   @Valid
   private IntegerDTO category;
 

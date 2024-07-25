@@ -34,7 +34,7 @@ public class CategoryController {
   // criar endpoint de categoria buscada
   @GetMapping("{id}")
   public ResponseEntity<CategoryResponse> getCategory(@PathVariable int id){
-    CategoryResponse category = categoryService.getDTOById(id);
+    CategoryResponse category = categoryService.getById(id);
     return ResponseEntity.ok(category);
   }
 

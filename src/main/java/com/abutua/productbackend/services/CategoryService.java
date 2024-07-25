@@ -4,14 +4,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.abutua.productbackend.dto.CategoryRequest;
 import com.abutua.productbackend.dto.CategoryResponse;
 import com.abutua.productbackend.models.Category;
 import com.abutua.productbackend.repositories.CategoryRepository;
+import com.abutua.productbackend.services.exceptions.DatabaseException;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class CategoryService {
@@ -19,16 +21,10 @@ public class CategoryService {
   @Autowired
   CategoryRepository categoryRepository;
   
-  public CategoryResponse getDTOById(int id) {
+  public CategoryResponse getById(int id) {
     Category category = categoryRepository.findById(id)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+      .orElseThrow(() -> new EntityNotFoundException("Category not found"));
     return category.toDTO();
-  }
-
-  public Category getById(int id) {
-    Category category = categoryRepository.findById(id)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
-    return category;
   }
 
   public List<CategoryResponse> getAll() {
@@ -44,14 +40,31 @@ public class CategoryService {
   }
 
   public void deleteById(int id) {
-    Category category = getById(id);
-    categoryRepository.delete(category);
+    try {
+      if(!categoryRepository.existsById(id)) {
+        throw new EntityNotFoundException("Category not found");
+      }
+      categoryRepository.deleteById(id);
+    }
+    catch (DataIntegrityViolationException e) {
+      throw new DatabaseException("Constrain violation, can't delete category");
+    }
+    // catch (EmptyResultDataAccessException e) {
+    //   throw new EntityNotFoundException("Category not found");
+    // }
+   
   }
 
   public void update(int id, CategoryRequest categoryUpdate) {
-    Category category = getById(id);
-    category.setName(categoryUpdate.getName());
-    categoryRepository.save(category);
+    try {
+      Category category = categoryRepository.getReferenceById(id);
+      category.setName(categoryUpdate.getName());
+      categoryRepository.save(category);      
+    }
+    catch (EntityNotFoundException e) {
+      throw new EntityNotFoundException("Category not found");
+    }
+
   }
 
 }
